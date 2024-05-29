@@ -30,20 +30,24 @@ namespace Server
 
             while (true)
             {
-                byte[] buffer = udpClient.Receive(ref iPEndPoint);
+                try
+                {
+                    byte[] buffer = udpClient.Receive(ref iPEndPoint);
+                    var messageText = Encoding.UTF8.GetString(buffer);
+                    Message message = Message.DesirializeFromJson(messageText);
+                    message.Print();
 
-                if (buffer == null) break;
-                var messageText = Encoding.UTF8.GetString(buffer);
-
-                Message message = Message.DesirializeFromJson(messageText);
-
-                message.Print();
+                    string confirmation = "Сообщение получено: " + message.Text;
+                    byte[] confirmationData = Encoding.UTF8.GetBytes(confirmation);
+                    udpClient.Send(confirmationData, confirmationData.Length, iPEndPoint);
+                    Console.WriteLine("Подтверждение отправлено: " + confirmation);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Ошибка при получении или отправке сообщения: " + ex.Message);
+                }
             }
         }
-
-
-
-
 
     }
 }

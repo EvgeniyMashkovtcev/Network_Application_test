@@ -34,17 +34,30 @@ namespace Client
                 Message message = new Message() { Text = messageText, DateTime = DateTime.Now, NicknameFrom = From, NicknameTo = "All" };
                 string json = message.SerializeMessageToJson();
 
-                byte[] data = Encoding.UTF8.GetBytes(json);
-                udpClient.Send(data, data.Length, iPEndPoint);
+                try
+                {
+                    byte[] data = Encoding.UTF8.GetBytes(json);
+                    udpClient.Send(data, data.Length, iPEndPoint);
+                    Console.WriteLine("Сообщение отправлено: " + json);
+
+                    var serverEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                    byte[] receivedData = udpClient.Receive(ref serverEndPoint);
+                    string confirmation = Encoding.UTF8.GetString(receivedData);
+                    Console.WriteLine("Подтверждение получено: " + confirmation);
+
+                    string deliveryConfirmation = "Ваше сообщение доставлено";
+                    byte[] deliveryConfirmationData = Encoding.UTF8.GetBytes(deliveryConfirmation);
+                    udpClient.Send(deliveryConfirmationData, deliveryConfirmationData.Length, serverEndPoint);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Ошибка при отправке или получении подтверждения: " + ex.Message);
+                }
 
             }
 
 
         }
-
-
-
-
 
 
     }

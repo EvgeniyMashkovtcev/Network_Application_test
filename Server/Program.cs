@@ -28,24 +28,26 @@ namespace Server
 
             Console.WriteLine("Сервер ждет сообщение от клиента");
 
-            while (true)
+            bool isRunning = true;
+
+            while (isRunning)
             {
-                try
+                byte[] buffer = udpClient.Receive(ref iPEndPoint);
+                var messageText = Encoding.UTF8.GetString(buffer);
+
+                if (messageText.ToLower() == "exit")
                 {
-                    byte[] buffer = udpClient.Receive(ref iPEndPoint);
-                    var messageText = Encoding.UTF8.GetString(buffer);
+                    isRunning = false;
+                    continue;
+                }
+
+                ThreadPool.QueueUserWorkItem(obj => {
                     Message message = Message.DesirializeFromJson(messageText);
                     message.Print();
 
-                    string confirmation = "Сообщение получено: " + message.Text;
-                    byte[] confirmationData = Encoding.UTF8.GetBytes(confirmation);
-                    udpClient.Send(confirmationData, confirmationData.Length, iPEndPoint);
-                    Console.WriteLine("Подтверждение отправлено: " + confirmation);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Ошибка при получении или отправке сообщения: " + ex.Message);
-                }
+                    byte[] reply = Encoding.UTF8.GetBytes("Сообщение получено");
+                    udpClient.Send(reply, reply.Length, iPEndPoint);
+                });
             }
         }
 

@@ -9,7 +9,10 @@ namespace Server
         static void Main(string[] args)
         {
 
-            Server("Hello");
+            CancellationTokenSource cts = new CancellationTokenSource();
+            Server("Hello", cts.Token);
+
+            // Server("Hello");
 
 
         }
@@ -21,34 +24,40 @@ namespace Server
             Message? msgDesirialized = Message.DesirializeFromJson(json);
         }
 
-        public static void Server(string name)
+        public static void Server(string name, CancellationToken token)
         {
             UdpClient udpClient = new UdpClient(12345);
             IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Any, 0);
 
             Console.WriteLine("Сервер ждет сообщение от клиента");
 
-            bool isRunning = true;
-
-            while (isRunning)
+            Task.Run(() =>
             {
-                byte[] buffer = udpClient.Receive(ref iPEndPoint);
-                var messageText = Encoding.UTF8.GetString(buffer);
-
-                if (messageText.ToLower() == "exit")
+                while (!token.IsCancellationRequested)
                 {
-                    isRunning = false;
-                    continue;
+                    if (udpClient.Available > 0)
+                    {
+                        byte[] buffer = udpClient.Receive(ref iPEndPoint);
+                        var messageText = Encoding.UTF8.GetString(buffer);
+
+                        if (messageText.ToLower() == "exit")
+                        {
+                            break;
+                        }
+
+                        Message message = Message.DesirializeFromJson(messageText);
+                        message.Print();
+
+                        byte[] reply = Encoding.UTF8.GetBytes("Сообщение получено");
+                        udpClient.Send(reply, reply.Length, iPEndPoint);
+                        // Console.WriteLine($"Отправлено {reply.Length}");
+                    }
                 }
+            }, token);
 
-                ThreadPool.QueueUserWorkItem(obj => {
-                    Message message = Message.DesirializeFromJson(messageText);
-                    message.Print();
-
-                    byte[] reply = Encoding.UTF8.GetBytes("Сообщение получено");
-                    udpClient.Send(reply, reply.Length, iPEndPoint);
-                });
-            }
+            
+            Console.ReadKey();
+            udpClient.Close();
         }
 
     }

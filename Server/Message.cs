@@ -6,11 +6,19 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace Server
 {
+    public enum Commands
+    {
+        Register,
+        Delete
+    }
     public class Message
     {
+        public Commands command {  get; set; }
+
         public string Text { get; set; }
 
         public DateTime DateTime { get; set; }
@@ -33,5 +41,9 @@ namespace Server
             return $"{this.DateTime} получено сообщение {this.Text} от {this.NicknameFrom}";
         }
 
+        public static Message DeserializeFromJson(string jsonData)
+        {
+            return System.Text.Json.JsonSerializer.Deserialize<Message>(jsonData);
+        }
     }
 }

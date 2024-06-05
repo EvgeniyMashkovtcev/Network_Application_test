@@ -7,14 +7,16 @@ namespace Client
 {
     internal class Program
     {
+        
+        // static UdpClient udpClient = new UdpClient();
+        // static IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Parse(ip), 12345);
+
         static void Main(string[] args)
         {
             for (int i = 0; i < 10; i++) 
             {
                 SentMessage("Evg");
             }
-            
-            // SentMessage("Evg");
             
             Console.ReadLine();
             
@@ -27,31 +29,43 @@ namespace Client
             UdpClient udpClient = new UdpClient();
             IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Parse(ip), 12345);
 
-            Console.WriteLine("Введите сообщение:");
-            string messageText = Console.ReadLine();
 
-            if (messageText.ToLower() == "exit")
-            {
-                return;
-            }
-
-            Message message = new Message() { Text = messageText, NicknameFrom = From, NicknameTo = "Server", DateTime = DateTime.Now };
+        }
+        public static void m1()
+        {
+            Message message = new Message() { Text = "Hey", NicknameFrom = "Evgeni", NicknameTo = "Server", DateTime = DateTime.Now , command = Commands.Register };
             string json = message.SerializeMessageToJson();
 
 
             byte[] data = Encoding.UTF8.GetBytes(json);
             udpClient.Send(data, data.Length, iPEndPoint);
-
-            byte[] buffer = udpClient.Receive(ref iPEndPoint);
-            var answer = Encoding.UTF8.GetString(buffer);
-
-            Console.WriteLine(answer);
-
-
+        }
+        public static void m2()
+        {
+            Message message = new Message() { Text = "Helllo", NicknameFrom = "Evgeny", NicknameTo = "Server", DateTime = DateTime.Now, command = Commands.Register };
+            string json = message.SerializeMessageToJson();
 
 
+            byte[] data = Encoding.UTF8.GetBytes(json);
+            udpClient.Send(data, data.Length, iPEndPoint);
+        }
+        public static void m3()
+        {
+            Message message = new Message() { Text = "Holo", NicknameFrom = "Evgeni", NicknameTo = "Evgeny", DateTime = DateTime.Now};
+            string json = message.SerializeMessageToJson();
 
 
+            byte[] data = Encoding.UTF8.GetBytes(json);
+            udpClient.Send(data, data.Length, iPEndPoint);
+        }
+        public static void m4()
+        {
+            Message message = new Message() { Text = "Helo", NicknameFrom = "Evgeni", NicknameTo = "Server", DateTime = DateTime.Now, command = Commands.Delete };
+            string json = message.SerializeMessageToJson();
+
+
+            byte[] data = Encoding.UTF8.GetBytes(json);
+            udpClient.Send(data, data.Length, iPEndPoint);
         }
 
 

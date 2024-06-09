@@ -15,7 +15,8 @@ namespace EF
         public int? UserToId {  get; set; }
         public int? UserFromId {  get; set; }
         public virtual User? UserTo { get; set; }
-        public virtual User? UserFrom { get; set; } 
+        public virtual User? UserFrom { get; set; }
+
 
     }
 }

@@ -12,6 +12,7 @@ namespace Server
     public class NetMessage
     {
         public int Id {  get; set; }
+
         public Command command { get; set; }
 
         public string? Text { get; set; }
@@ -21,6 +22,8 @@ namespace Server
         public string? NicknameFrom { get; set; }
 
         public string? NicknameTo { get; set; }
+
+        public IPEndPoint? EndPoint { get; set; }
 
         public string SerializeMessageToJson() => JsonSerializer.Serialize(this);
 
